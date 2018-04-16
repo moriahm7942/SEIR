@@ -47,8 +47,9 @@ derivative_calc_func=function(t, x, vparameters){
    # You need to make sure that these are in the same order. 
    ###############################################################################
    S = x[1]  
-   I = x[2]  
-   R = x[3]  
+   E = x[2]  
+   I = x[3]
+   R = x[4]  
 
    ###############################################################################
    # vparameters is a list object, filled in the main program, and passed
@@ -62,7 +63,7 @@ derivative_calc_func=function(t, x, vparameters){
       # npop = S+I+R
       # we will need this to calculate our SIR model derivatives below
       ############################################################################
-      npop = S+I+R   
+      npop = S+E+I+R   
 
       ############################################################################
       # Now give the expressions for the derivatives of S, I, and R wrt time
@@ -70,16 +71,17 @@ derivative_calc_func=function(t, x, vparameters){
       # an SIR model.  When you write your own function, replace these with
       # your model equations
       ############################################################################
-      dS = -beta*S*I/npop            
-      dI = +beta*S*I/npop - gamma*I  
-      dR = +gamma*I                  
+      dS = -beta*S*I/npop     
+      dE = beta*S*I/npop-sigma*E    
+      dI = sigma*E-gamma*I  
+      dR = gamma*I              
 
       ############################################################################
       # vout is an output vector that contains the values of the derivates
       # the compartments in the vector on the RHS need to be in the same order as the
       # compartments used to fill the x vector!
       ############################################################################
-      vout = c(dS,dI,dR)
+      vout = c(dS,dE,dI,dR)
       list(vout)
    })
 }
@@ -92,15 +94,17 @@ derivative_calc_func=function(t, x, vparameters){
 ##################################################################################
 derivative_calc_func_with_demographics=function(t, x, vparameters){
    S = x[1]  
-   I = x[2]  
-   R = x[3]  
+   E = x[2]  
+   I = x[3]
+   R = x[4] 
 
    with(as.list(vparameters),{
-      npop = S+I+R   
-      dS = -beta*S*I/npop - mu*S + npop*mu  
-      dI = +beta*S*I/npop - gamma*I - mu*I  
-      dR = +gamma*I - mu*R                  
-      out = c(dS,dI,dR)
+      npop = S+E+I+R   
+      dS = -delta*npop+beta*S*I+lambda*S     
+      dE = -beta*S*I+gamma*E+lambda*E     
+      dI = -gamma*E+mu*I+lambda*I  
+      dR = -mu*I+lambda*R                      
+      out = c(dS,dE,dI,dR)
       list(out)
    })
 }
@@ -114,22 +118,24 @@ derivative_calc_func_with_demographics=function(t, x, vparameters){
 # time_vaccination_ends
 ##################################################################################
 derivative_calc_func_with_vaccination=function(t, x, vparameters){
-   S    = x[1]  
-   I    = x[2]  
-   R    = x[3]  
-   Rvac = x[4]  
+   S = x[1]  
+   E = x[2]  
+   I = x[3]
+   R = x[4]
+   Rvac = x[5]  
 
    with(as.list(vparameters),{
-      npop = S+I+R+Rvac   
-      dS    = -beta*S*I/npop            
-      dI    = +beta*S*I/npop - gamma*I  
-      dR    = +gamma*I                  
+      npop = S+E+I+R+Rvac   
+      dS    = mu*N-mu*S-beta*S*I/npop-nu*S            
+      dE    = +beta*S*I/npop - mu*E-sigma*E
+      dI    = +sigma*E-mu*I-gamma*I  
+      dR    = +gamma*I-mu*R+nu*S                  
       dRvac = 0
       if (t>=time_vaccination_begins&t<=time_vaccination_ends){
          dS    = dS - rho*S
          dRvac = +rho*S
       }
-      out = c(dS,dI,dR,dRvac)
+      out = c(dS,dE,dI,dR,dRvac)
       list(out)
    })
 }
