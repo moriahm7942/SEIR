@@ -1,0 +1,2 @@
+# SEIR
+SEIR moddel
