@@ -1,5 +1,6 @@
 ##################################################################################
-# An R script to solve ODE's of an SIR model 
+# An R script to solve ODE's of an SEIR model 
+# Modified from:
 # http://www.sherrytowers.com/sir_func.R
 #
 # Author: Sherry Towers
@@ -23,8 +24,8 @@ require("deSolve")
 
 ##################################################################################
 ##################################################################################
-# This is a function which, given a value of S, I, and R at time t
-# calculates the time derivatives of S I and R
+# This is a function which, given a value of S, E,I, and R at time t
+# calculates the time derivatives of S E I and R
 #
 # The function gets called over and over again by functions in the R deSolve
 # library to do the numerical integration over many time steps to solve
@@ -68,7 +69,7 @@ derivative_calc_func=function(t, x, vparameters){
       ############################################################################
       # Now give the expressions for the derivatives of S, I, and R wrt time
       # these come from the model equations.  The following equations are for
-      # an SIR model.  When you write your own function, replace these with
+      # an SEIR model.  When you write your own function, replace these with
       # your model equations
       ############################################################################
       dS = -beta*S*I/npop     
